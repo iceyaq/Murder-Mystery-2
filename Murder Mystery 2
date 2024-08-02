@@ -1,113 +1,20 @@
--- LocalScript in StarterPlayerScripts
+-- Load and execute the script from GitHub with error handling
+local scriptUrl = "https://raw.githubusercontent.com/iceyaq/Murder-Mystery-2/main/Murder%20Mystery%202"
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
-
--- Load Rayfield GUI
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
-
--- Create the Rayfield GUI
-local window = Rayfield:CreateWindow({
-    Name = "Murder Mystery 2 GUI",
-    LoadingTitle = "Loading...",
-    LoadingSubtitle = "Please wait",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = nil, -- Folder name (optional)
-        FileName = "MurderMystery2GUI" -- File name
-    },
-    Discord = {
-        Enabled = true,
-        Invite = "https://discord.gg/YzhrUjdfkP", -- Your Discord invite
-        RememberJoins = true
-    },
-    KeySystem = false,
-    IntroText = "Welcome to Murder Mystery 2!",
-    IntroIcon = "rbxassetid://123456789" -- Example asset ID
-})
-
--- Add a tab for custom features
-local mainTab = window:CreateTab("Main", 4483362458) -- Tab with an icon ID
-
--- Add a section for UI elements
-local uiSection = mainTab:CreateSection("UI Enhancements")
-
--- Button to display a notification
-uiSection:CreateButton({
-    Name = "Show Notification",
-    Callback = function()
-        local player = Players.LocalPlayer
-        if player then
-            local screenGui = Instance.new("ScreenGui")
-            screenGui.Name = "NotificationGUI"
-            screenGui.Parent = player:WaitForChild("PlayerGui")
-
-            local textLabel = Instance.new("TextLabel")
-            textLabel.Size = UDim2.new(0.5, 0, 0.1, 0)
-            textLabel.Position = UDim2.new(0.25, 0, 0.45, 0)
-            textLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            textLabel.Text = "Round is about to start!"
-            textLabel.Parent = screenGui
-
-            wait(5)
-            screenGui:Destroy()
+local success, errorMessage = pcall(function()
+    local source = game:HttpGet(scriptUrl, true)
+    if source then
+        local func, loadError = loadstring(source)
+        if func then
+            func()
+        else
+            error("Failed to load script: " .. (loadError or "Unknown error"))
         end
-    end
-})
-
--- Section for game mechanics
-local mechanicsSection = mainTab:CreateSection("Game Mechanics")
-
--- Function to handle automatic gun retrieval
-local function onGunPickup()
-    local player = Players.LocalPlayer
-    if player then
-        local gun = workspace:FindFirstChild("Gun")
-        if gun then
-            player.Character.HumanoidRootPart.CFrame = gun.CFrame
-        end
-    end
-end
-
--- Button to trigger automatic gun retrieval
-mechanicsSection:CreateButton({
-    Name = "Auto Get Gun",
-    Callback = onGunPickup
-})
-
--- ESP Function
-local function createESP(part, color)
-    local esp = Instance.new("BillboardGui")
-    esp.Size = UDim2.new(0, 50, 0, 50)
-    esp.Adornee = part
-    esp.Parent = Players.LocalPlayer.PlayerGui
-
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.BackgroundColor3 = color
-    frame.Parent = esp
-end
-
--- Function to add ESP for coins and guns
-RunService.Heartbeat:Connect(function()
-    for _, part in pairs(workspace:FindPartsInRegion3(workspace.CurrentCamera.CFrame:PointToWorldSpace(workspace.CurrentCamera.CFrame.p), Vector3.new(500, 500, 500), nil)) do
-        if part.Name == "Coin" then
-            createESP(part, Color3.fromRGB(255, 215, 0)) -- Gold color for coins
-        elseif part.Name == "Gun" then
-            createESP(part, Color3.fromRGB(255, 0, 0)) -- Red color for guns
-        end
+    else
+        error("Failed to fetch script from URL")
     end
 end)
 
--- Add a tab for Credits
-local creditsTab = window:CreateTab("Credits", 4483362458) -- Tab with an icon ID
-
--- Add a section for credits
-local creditsSection = creditsTab:CreateSection("Credits")
-
--- Display credit information
-creditsSection:CreateLabel("Discord: riofluxxx")
-creditsSection:CreateLabel("GitHub: https://github.com/iceyaq")
-creditsSection:CreateLabel("Pastebin: https://pastebin.com/u/lawls_")
+if not success then
+    warn("Script execution error: " .. errorMessage)
+end
